@@ -911,3 +911,4 @@ $.extend($.ui.dialog, {
 		this.$el = $.ui.dialog.overlay.create(dialog);
 	}
 });
+})(jQuery);
