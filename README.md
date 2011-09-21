@@ -7,6 +7,8 @@ http://www.fieryprophet.com/demo/jqui-dialog-minmax/
 
 $("#dialog").dialog({minimize: true, maximize: true});
 
+//NOTE: minimize and maximize are enabled by default, so this is unneccesary
+
 #	Notes
  - May not be used with the modal dialog option
  - The minimize option can be either a boolean value or a selector string of an element to "minimize" the dialog to
