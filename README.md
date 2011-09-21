@@ -24,8 +24,8 @@ $("#dialog").dialog({minimize: true, maximize: true});
  
 	$("#dialog").dialog({minimize:"#toolbar"});
 	
-	An &lt;a&gt; element link will be created in the #toolbar element that unminimizes the dialog when clicked.
-	If the minimize option is a boolean value of true, it will simply hide the dialog content and leave a floating titlebar that can be unminimized.
+An &lt;a&gt; element link will be created in the #toolbar element that unminimizes the dialog when clicked.
+If the minimize option is a boolean value of true, it will simply hide the dialog content and leave a floating titlebar that can be unminimized.
 	
 - Adds "minimize" "unminimize" "maximize" "unmaximize" events
 - Adds "beforeMinimize" "beforeUnminimize" "beforeMaximize" "beforeUnmaximize" optional triggers
