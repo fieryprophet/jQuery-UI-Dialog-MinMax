@@ -88,11 +88,8 @@ $.widget("ui.dialog", {
 		show: null,
 		stack: true,
 		title: '',
-		width: 400,
-		zIndex: 1000,
-		close: function(ev, ui){
-			$(this).dialog('destroy').remove();
-		}
+		width: 300,
+		zIndex: 1000
 	},
 
 	_create: function() {
@@ -224,7 +221,7 @@ $.widget("ui.dialog", {
 						return false;
 					});
 			}
-			if(options.close){
+			if(options.close !== false){
 				var uiDialogTitlebarClose = $('<a href="#"></a>')
 					.addClass(
 						'ui-dialog-titlebar-close ' +
@@ -911,4 +908,159 @@ $.extend($.ui.dialog, {
 		this.$el = $.ui.dialog.overlay.create(dialog);
 	}
 });
-})(jQuery);
+
+$.extend($.ui.dialog.overlay, {
+	instances: [],
+	// reuse old instances due to IE memory leak with alpha transparency (see #5185)
+	oldInstances: [],
+	maxZ: 0,
+	events: $.map('focus,mousedown,mouseup,keydown,keypress,click'.split(','),
+		function(event) { return event + '.dialog-overlay'; }).join(' '),
+	create: function(dialog) {
+		if (this.instances.length === 0) {
+			// prevent use of anchors and inputs
+			// we use a setTimeout in case the overlay is created from an
+			// event that we're going to be cancelling (see #2804)
+			setTimeout(function() {
+				// handle $(el).dialog().dialog('close') (see #4065)
+				if ($.ui.dialog.overlay.instances.length) {
+					$(document).bind($.ui.dialog.overlay.events, function(event) {
+						// stop events if the z-index of the target is < the z-index of the overlay
+						// we cannot return true when we don't want to cancel the event (#3523)
+						if ($(event.target).zIndex() < $.ui.dialog.overlay.maxZ) {
+							return false;
+						}
+					});
+				}
+			}, 1);
+
+			// allow closing by pressing the escape key
+			$(document).bind('keydown.dialog-overlay', function(event) {
+				if (dialog.options.closeOnEscape && !event.isDefaultPrevented() && event.keyCode &&
+					event.keyCode === $.ui.keyCode.ESCAPE) {
+					
+					dialog.close(event);
+					event.preventDefault();
+				}
+			});
+
+			// handle window resize
+			$(window).bind('resize.dialog-overlay', $.ui.dialog.overlay.resize);
+		}
+
+		var $el = (this.oldInstances.pop() || $('<div></div>').addClass('ui-widget-overlay'))
+			.appendTo(document.body)
+			.css({
+				width: this.width(),
+				height: this.height()
+			});
+
+		if ($.fn.bgiframe) {
+			$el.bgiframe();
+		}
+
+		this.instances.push($el);
+		return $el;
+	},
+
+	destroy: function($el) {
+		var indexOf = $.inArray($el, this.instances);
+		if (indexOf != -1){
+			this.oldInstances.push(this.instances.splice(indexOf, 1)[0]);
+		}
+
+		if (this.instances.length === 0) {
+			$([document, window]).unbind('.dialog-overlay');
+		}
+
+		$el.remove();
+		
+		// adjust the maxZ to allow other modal dialogs to continue to work (see #4309)
+		var maxZ = 0;
+		$.each(this.instances, function() {
+			maxZ = Math.max(maxZ, this.css('z-index'));
+		});
+		this.maxZ = maxZ;
+	},
+
+	height: function() {
+		var scrollHeight,
+			offsetHeight;
+		// handle IE 6
+		if ($.browser.msie && $.browser.version < 7) {
+			scrollHeight = Math.max(
+				document.documentElement.scrollHeight,
+				document.body.scrollHeight
+			);
+			offsetHeight = Math.max(
+				document.documentElement.offsetHeight,
+				document.body.offsetHeight
+			);
+
+			if (scrollHeight < offsetHeight) {
+				return $(window).height() + 'px';
+			} else {
+				return scrollHeight + 'px';
+			}
+		// handle "good" browsers
+		} else {
+			return $(document).height() + 'px';
+		}
+	},
+
+	width: function() {
+		var scrollWidth,
+			offsetWidth;
+		// handle IE
+		if ( $.browser.msie ) {
+			scrollWidth = Math.max(
+				document.documentElement.scrollWidth,
+				document.body.scrollWidth
+			);
+			offsetWidth = Math.max(
+				document.documentElement.offsetWidth,
+				document.body.offsetWidth
+			);
+
+			if (scrollWidth < offsetWidth) {
+				return $(window).width() + 'px';
+			} else {
+				return scrollWidth + 'px';
+			}
+		// handle "good" browsers
+		} else {
+			return $(document).width() + 'px';
+		}
+	},
+
+	resize: function() {
+		/* If the dialog is draggable and the user drags it past the
+		 * right edge of the window, the document becomes wider so we
+		 * need to stretch the overlay. If the user then drags the
+		 * dialog back to the left, the document will become narrower,
+		 * so we need to shrink the overlay to the appropriate size.
+		 * This is handled by shrinking the overlay before setting it
+		 * to the full document size.
+		 */
+		var $overlays = $([]);
+		$.each($.ui.dialog.overlay.instances, function() {
+			$overlays = $overlays.add(this);
+		});
+
+		$overlays.css({
+			width: 0,
+			height: 0
+		}).css({
+			width: $.ui.dialog.overlay.width(),
+			height: $.ui.dialog.overlay.height()
+		});
+	}
+});
+
+$.extend($.ui.dialog.overlay.prototype, {
+	destroy: function() {
+		$.ui.dialog.overlay.destroy(this.$el);
+	}
+});
+
+}(jQuery));
