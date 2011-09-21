@@ -19,7 +19,8 @@ $("#dialog").dialog({minimize: true, maximize: true});
 #	Notes
  - May not be used with the modal dialog option
  - The minimize option can be either a boolean value or a selector string of an element to "minimize" the dialog to
- Example:
+
+<b>Example</b>
  
 	$("#dialog").dialog({minimize:"#toolbar"});
 	
