@@ -1,6 +1,7 @@
 #	Description
 jQuery UI Dialog w/ Minimize and Maximize Support
-by Elijah Horton (fieryprophet@yahoo.com)
+
+http://www.fieryprophet.com/demo/jqui-dialog-minmax/
 
 #	Usage
 
@@ -13,7 +14,7 @@ $("#dialog").dialog({minimize: true, maximize: true});
  
 	$("#dialog").dialog({minimize:"#toolbar"});
 	
-	An A element link will be created in the #toolbar element that unminimizes the dialog when clicked.
+	An <a> element link will be created in the #toolbar element that unminimizes the dialog when clicked.
 	If the minimize option is a boolean value of true, it will simply hide the dialog content and leave a floating titlebar that can be unminimized.
 	
 - Adds "minimize" "unminimize" "maximize" "unmaximize" events
