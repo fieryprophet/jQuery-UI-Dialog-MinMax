@@ -434,8 +434,6 @@ $.widget("ui.dialog", {
 			self.overlay.destroy();
 		}
 		self.uiDialog.unbind('keypress.ui-dialog');
-		//destroy all richtext field instances because ckeditor is retarded
-		self.uiDialog.find('.bm-element-richtext').each(function(){$(this).ckeditorGet().destroy();})
 
 		self._isOpen = false;
 
@@ -537,12 +535,9 @@ $.widget("ui.dialog", {
 
 		// set focus to the first tabbable element in the content area or the first button
 		// if there are no tabbable elements, set focus on the dialog itself
-		/* What retarded monkey thought this behavior was a good idea? Disable the stupid autofocus --
 		$(self.element.find(':tabbable').get().concat(
 			uiDialog.find('.ui-dialog-buttonpane :tabbable').get().concat(
 				uiDialog.get()))).eq(0).focus();
-		-- Focus dialog instead */
-		uiDialog.focus();
 
 		self._isOpen = true;
 		self._trigger('open');
