@@ -1057,5 +1057,5 @@ $.extend($.ui.dialog.overlay.prototype, {
 		$.ui.dialog.overlay.destroy(this.$el);
 	}
 });
-
+if ( $.attrFn ) { $.attrFn.text = true; } 
 }(jQuery));
